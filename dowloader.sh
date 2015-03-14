@@ -7,7 +7,7 @@
 
 
 IMG_URL=""
-DOWNLOAD_PATH=""
+DOWNLOAD_PATH="./download"
 VERBOSE=false
 
 verbose(){
@@ -18,7 +18,11 @@ verbose(){
 }
 
 usage(){
-	echo "Usage: $0 -u <url> -r <localPath>"
+	echo "Usage: $0 -u <url> -r <localPath> [-v]"
+	echo "Options:"
+	echo " -u <url>       : set the URL from where the image should be downloaded"
+	echo " -r <localPath> : set the path to where the image should be downloaded in local"
+	echo " -v             : Verbose. Display informations during processing the script"
 	exit 1
 }
 
