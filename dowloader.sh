@@ -8,6 +8,14 @@
 
 IMG_URL=""
 DOWNLOAD_PATH=""
+VERBOSE=false
+
+verbose(){
+	if [[ $VERBOSE = true ]]
+		then
+		echo $1
+	fi
+}
 
 usage(){
 	echo "Usage: $0 -u <url> -r <localPath>"
@@ -15,10 +23,10 @@ usage(){
 }
 
 download(){
-	echo "Downloading new image"
+	verbose "Downloading new image"
 	rm "./*.zip" > /dev/null 2>&1
 	curl -O -# -J -L "$IMG_URL"
-	echo "Done!"
+	verbose "Done!"
 }
 
 process(){
@@ -31,11 +39,11 @@ process(){
 
 	if [[ "$old_filename" == "" ]] && [[ "$new_filename" != "" ]]
 		then
-		echo "No previous file"
+		verbose "No previous file"
 		download
 	elif [[ "$old_filename" != "" ]] && [[ "$new_filename" != "" ]] 
 		then
-		echo "Previous file $old_filename, checking version with $new_filename"
+		verbose "Previous file $old_filename, checking version with $new_filename"
 
 	# echo "$old_filename" | od -c
 	# echo "$new_filename" | od -c
@@ -44,21 +52,22 @@ process(){
 
 	if [[ "$old_filename" != "$new_filename" ]]
 		then
-		echo "New version detected"
+		verbose "New version detected"
 		download
 	else
-		echo "No new version detected"
+		verbose "No new version detected"
 	fi
 fi
 }
 
-while getopts ":u:r:h" opt; do
+while getopts ":u:r:hv" opt; do
 
 	case $opt in
 
 		u) IMG_URL="$OPTARG" ; echo "Set URL with $IMG_URL";;
 		r) DOWNLOAD_PATH="$OPTARG" ; echo "Set DOWNLOAD_PATH with $DOWNLOAD_PATH";;
 		h) usage ;;
+		v) VERBOSE=true ;;
 		\? ) echo "Unknown option: -$OPTARG" ; usage ;;
 		:  ) echo "Missing option argument for -$OPTARG" ; usage ;;
 		*  ) echo "Unimplemented option: -$OPTARG" ; usage ;;
@@ -66,5 +75,7 @@ while getopts ":u:r:h" opt; do
 	esac
 
 done
+
+process
 
 exit 0
