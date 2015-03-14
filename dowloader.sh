@@ -47,8 +47,6 @@ process(){
 		download
 	elif [[ "$old_filename" != "" ]] && [[ "$new_filename" != "" ]] 
 		then
-		verbose "Previous file $old_filename, checking version with $new_filename"
-
 	# echo "$old_filename" | od -c
 	# echo "$new_filename" | od -c
 	# echo "$old_filename" | wc -m
@@ -56,10 +54,10 @@ process(){
 
 	if [[ "$old_filename" != "$new_filename" ]]
 		then
-		verbose "New version detected"
+		verbose "Replace file $old_filename with $new_filename"
 		download
 	else
-		verbose "No new version detected"
+		verbose "Keep $old_filename"
 	fi
 fi
 }
