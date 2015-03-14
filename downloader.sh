@@ -39,7 +39,7 @@ process(){
 	cd "$DOWNLOAD_PATH"
 
 	new_filename=`curl -sS --head -J -L http://downloads.raspberrypi.org/raspbian_latest | grep -o -E 'filename=.*$' | sed -e 's/filename=//' | tr -d '\r' | tr -d '\n'`
-	old_filename=`basename *.zip 2> /dev/null | tr -d '\r' | tr -d '\n'`
+	old_filename=`find *.zip 2> /dev/null | tr -d '\r' | tr -d '\n'`
 
 	if [[ "$old_filename" == "" ]] && [[ "$new_filename" != "" ]]
 		then
