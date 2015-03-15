@@ -19,6 +19,7 @@ PORCELAIN_SHA1=""
 PORCELAIN_ACTION_CREATE="create"
 PORCELAIN_ACTION_UPDATE="update"
 PORCELAIN_ACTION_SKIP="skip"
+PORCELAIN_ACTION_ERROR="error"
 
 verbose(){
 	if [[ $VERBOSE = true ]]
@@ -91,8 +92,17 @@ download(){
 	verbose "Downloading new image"
 	rm ./* > /dev/null 2>&1
 	curl `if [[ "$VERBOSE" == false ]]; then echo "-sS"; fi` -O -# -J -L "$IMG_URL"
-	changeCMD
-	verbose "Done!"
+
+	if [[ $? == 0 ]]
+		then
+		changeCMD
+		verbose "Downloaded with success!"
+	elif [[ $? == 1 ]]
+		then
+		verbose "Downloaded with error!"
+		porcelainAction=$PORCELAIN_ACTION_ERROR
+		rm ./* > /dev/null 2>&1
+	fi
 }
 
 process(){
@@ -126,8 +136,14 @@ process(){
 	fi
 fi
 
-porcelainFile "$new_filename"
-porcelainSHA1 `cat "./$new_filename" | shasum | cut -d" " -f1`
+if [[ "$new_filename" != "" ]]
+	then
+	porcelainFile "$new_filename"
+	porcelainSHA1 `cat "./$new_filename" | shasum | cut -d" " -f1`
+else
+	porcelainAction $PORCELAIN_ACTION_ERROR
+fi
+
 }
 
 
