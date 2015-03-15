@@ -62,22 +62,26 @@ process(){
 fi
 }
 
-while getopts ":u:r:hv" opt; do
+parseOpt(){
 
-	case $opt in
+	while getopts ":u:r:hv" opt; do
 
-		u) IMG_URL="$OPTARG" ; echo "Set URL with $IMG_URL";;
-		r) DOWNLOAD_PATH="$OPTARG" ; echo "Set DOWNLOAD_PATH with $DOWNLOAD_PATH";;
-		h) usage ;;
-		v) VERBOSE=true ;;
-		\? ) echo "Unknown option: -$OPTARG" ; usage ;;
-		:  ) echo "Missing option argument for -$OPTARG" ; usage ;;
-		*  ) echo "Unimplemented option: -$OPTARG" ; usage ;;
+		case $opt in
 
-	esac
+			u) IMG_URL="$OPTARG" ; echo "Set URL with $IMG_URL";;
+			r) DOWNLOAD_PATH="$OPTARG" ; echo "Set DOWNLOAD_PATH with $DOWNLOAD_PATH";;
+			h) usage;;
+			v) VERBOSE=true;;
+			\? ) echo "Unknown option: -$OPTARG" ; usage;;
+			:  ) echo "Missing option argument for -$OPTARG" ; usage;;
+			*  ) echo "Unimplemented option: -$OPTARG" ; usage;;
+
+		esac
 
 done
 
+}
+parseOpt
 process
 
 exit 0
