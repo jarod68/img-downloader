@@ -10,11 +10,48 @@ IMG_URL=""
 DOWNLOAD_PATH="./download"
 VERBOSE=false
 COMMAND=""
+PORCELAIN=false
+
+PORCELAIN_ACTION=""
+PORCELAIN_FILE=""
+PORCELAIN_SHA1=""
+
+PORCELAIN_ACTION_CREATE="create"
+PORCELAIN_ACTION_UPDATE="update"
+PORCELAIN_ACTION_SKIP="skip"
 
 verbose(){
 	if [[ $VERBOSE = true ]]
 		then
-		echo $1
+		echo "$1"
+	fi
+}
+
+porcelainAction(){
+	if [[ $PORCELAIN = true ]]
+		then
+		PORCELAIN_ACTION="$1"
+	fi
+}
+
+porcelainFile(){
+	if [[ $PORCELAIN = true ]]
+		then
+		PORCELAIN_FILE="$1"
+	fi
+}
+
+porcelainSHA1(){
+	if [[ $PORCELAIN = true ]]
+		then
+		PORCELAIN_SHA1="$1"
+	fi
+}
+
+porcelainEcho(){
+	if [[ $PORCELAIN = true ]]
+		then
+		echo "action=$PORCELAIN_ACTION:file=$PORCELAIN_FILE:sha1=$PORCELAIN_SHA1"
 	fi
 }
 
@@ -37,7 +74,7 @@ changeCMD(){
 
 download(){
 	verbose "Downloading new image"
-	rm "./*.zip" > /dev/null 2>&1
+	rm ./* > /dev/null 2>&1
 	curl -O -# -J -L "$IMG_URL"
 	changeCMD
 	verbose "Done!"
@@ -48,12 +85,13 @@ process(){
 	mkdir -p "$DOWNLOAD_PATH"
 	cd "$DOWNLOAD_PATH"
 
-	new_filename=`curl -sS --head -J -L http://downloads.raspberrypi.org/raspbian_latest | grep -o -E 'filename=.*$' | sed -e 's/filename=//' | tr -d '\r' | tr -d '\n'`
-	old_filename=`find *.zip 2> /dev/null | tr -d '\r' | tr -d '\n'`
+	new_filename=`curl -sS --head -J -L $IMG_URL | grep -o -E 'filename=.*$' | sed -e 's/filename=//' | tr -d '\r' | tr -d '\n'`
+	old_filename=`find *."${new_filename##*.}" 2> /dev/null | tr -d '\r' | tr -d '\n'`
 
 	if [[ "$old_filename" == "" ]] && [[ "$new_filename" != "" ]]
 		then
 		verbose "No previous file"
+		porcelainAction $PORCELAIN_ACTION_CREATE
 		download
 	elif [[ "$old_filename" != "" ]] && [[ "$new_filename" != "" ]] 
 		then
@@ -65,15 +103,20 @@ process(){
 	if [[ "$old_filename" != "$new_filename" ]]
 		then
 		verbose "Replace file $old_filename with $new_filename"
+		porcelainAction $PORCELAIN_ACTION_UPDATE
 		download
 	else
 		verbose "Keep $old_filename"
+		porcelainAction $PORCELAIN_ACTION_SKIP
 	fi
 fi
+
+porcelainFile "$new_filename"
+porcelainSHA1 `cat "./$new_filename" | shasum | cut -d" " -f1`
 }
 
 
-while getopts ":u:r:c:hv" opt; do
+while getopts ":u:r:c:hvp" opt; do
 
 	case $opt in
 
@@ -82,6 +125,7 @@ while getopts ":u:r:c:hv" opt; do
 		h) usage;;
 		v) VERBOSE=true;;
 		c) COMMAND="$OPTARG";;
+		p) PORCELAIN=true;;
 		\? ) echo "Unknown option: -$OPTARG" ; usage;;
 		:  ) echo "Missing option argument for -$OPTARG" ; usage;;
 		*  ) echo "Unimplemented option: -$OPTARG" ; usage;;
@@ -91,5 +135,6 @@ esac
 done
 
 process
+porcelainEcho
 
 exit 0
