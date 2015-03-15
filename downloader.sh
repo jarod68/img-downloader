@@ -56,12 +56,14 @@ porcelainEcho(){
 }
 
 usage(){
-	echo "Usage: $0 -u <url> -r <localPath> [-v -c]"
+	echo "Usage: $0 -u <url> -r <localPath> [-v -c -p]"
 	echo "Options:"
 	echo " -u <url>       : set the URL from where the image should be downloaded"
 	echo " -r <localPath> : set the path to where the image should be downloaded in local"
 	echo " -v             : Verbose. Display informations during processing the script"
 	echo " -c             : Shell command to execute if download/change in file occurs"
+	echo " -p             : Porcelain output, output string in the following format'action=ACTION:file=FILENAME:sha1=FILE_SHA'"
+	echo "                  where action could be equals to 'create', 'update' or 'skip' depending on the action"
 	exit 1
 }
 
