@@ -9,6 +9,7 @@
 IMG_URL=""
 DOWNLOAD_PATH="./download"
 VERBOSE=false
+COMMAND=""
 
 verbose(){
 	if [[ $VERBOSE = true ]]
@@ -18,18 +19,27 @@ verbose(){
 }
 
 usage(){
-	echo "Usage: $0 -u <url> -r <localPath> [-v]"
+	echo "Usage: $0 -u <url> -r <localPath> [-v -c]"
 	echo "Options:"
 	echo " -u <url>       : set the URL from where the image should be downloaded"
 	echo " -r <localPath> : set the path to where the image should be downloaded in local"
 	echo " -v             : Verbose. Display informations during processing the script"
+	echo " -c             : Shell command to execute if download/change in file occurs"
 	exit 1
+}
+
+changeCMD(){
+	if [[ "$COMMAND" != "" ]]
+		then
+		eval $COMMAND
+	fi
 }
 
 download(){
 	verbose "Downloading new image"
 	rm "./*.zip" > /dev/null 2>&1
 	curl -O -# -J -L "$IMG_URL"
+	changeCMD
 	verbose "Done!"
 }
 
@@ -62,26 +72,24 @@ process(){
 fi
 }
 
-parseOpt(){
 
-	while getopts ":u:r:hv" opt; do
+while getopts ":u:r:c:hv" opt; do
 
-		case $opt in
+	case $opt in
 
-			u) IMG_URL="$OPTARG" ; echo "Set URL with $IMG_URL";;
-			r) DOWNLOAD_PATH="$OPTARG" ; echo "Set DOWNLOAD_PATH with $DOWNLOAD_PATH";;
-			h) usage;;
-			v) VERBOSE=true;;
-			\? ) echo "Unknown option: -$OPTARG" ; usage;;
-			:  ) echo "Missing option argument for -$OPTARG" ; usage;;
-			*  ) echo "Unimplemented option: -$OPTARG" ; usage;;
+		u) IMG_URL="$OPTARG" ; echo "Set URL with $IMG_URL";;
+		r) DOWNLOAD_PATH="$OPTARG" ; echo "Set DOWNLOAD_PATH with $DOWNLOAD_PATH";;
+		h) usage;;
+		v) VERBOSE=true;;
+		c) COMMAND="$OPTARG";;
+		\? ) echo "Unknown option: -$OPTARG" ; usage;;
+		:  ) echo "Missing option argument for -$OPTARG" ; usage;;
+		*  ) echo "Unimplemented option: -$OPTARG" ; usage;;
 
-		esac
+esac
 
 done
 
-}
-parseOpt
 process
 
 exit 0
