@@ -27,6 +27,19 @@ verbose(){
 	fi
 }
 
+optionVerbose(){
+	verbose "Set URL with $IMG_URL"
+	verbose "Set DOWNLOAD_PATH with $DOWNLOAD_PATH"
+	if [[ $PORCELAIN = true ]]
+		then
+		verbose "Use porcelain output = true"
+	fi
+	if [[ $COMMAND != "" ]]
+		then
+		verbose "Use success command '$COMMAND'"
+	fi
+}
+
 porcelainAction(){
 	if [[ $PORCELAIN = true ]]
 		then
@@ -77,7 +90,7 @@ changeCMD(){
 download(){
 	verbose "Downloading new image"
 	rm ./* > /dev/null 2>&1
-	curl -O -# -J -L "$IMG_URL"
+	curl `if [[ "$VERBOSE" == false ]]; then echo "-sS"; fi` -O -# -J -L "$IMG_URL"
 	changeCMD
 	verbose "Done!"
 }
@@ -122,8 +135,8 @@ while getopts ":u:r:c:hvp" opt; do
 
 	case $opt in
 
-		u) IMG_URL="$OPTARG" ; echo "Set URL with $IMG_URL";;
-		r) DOWNLOAD_PATH="$OPTARG" ; echo "Set DOWNLOAD_PATH with $DOWNLOAD_PATH";;
+		u) IMG_URL="$OPTARG";;
+		r) DOWNLOAD_PATH="$OPTARG";;
 		h) usage;;
 		v) VERBOSE=true;;
 		c) COMMAND="$OPTARG";;
@@ -136,6 +149,7 @@ esac
 
 done
 
+optionVerbose
 process
 porcelainEcho
 
