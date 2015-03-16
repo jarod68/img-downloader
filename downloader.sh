@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/bin/bash
 
 # ---------------------------------------------------------------------------
 # Author: Matthieu Holtz
@@ -7,7 +7,7 @@
 
 
 IMG_URL=""
-DOWNLOAD_PATH="./download"
+DOWNLOAD_PATH=""
 VERBOSE=false
 COMMAND=""
 PORCELAIN=false
@@ -139,7 +139,7 @@ fi
 if [[ "$new_filename" != "" ]]
 	then
 	porcelainFile "$new_filename"
-	porcelainSHA1 `cat "./$new_filename" | shasum | cut -d" " -f1`
+	porcelainSHA1 `cat "./$new_filename" | openssl dgst -sha1 | cut -d" " -f2`
 else
 	porcelainAction $PORCELAIN_ACTION_ERROR
 fi
